@@ -1,33 +1,87 @@
-package com.example.budjet  // <-- make sure this matches your app package
+package com.example.budjet
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.example.budjet.R  // explicitly import your generated R
+import androidx.appcompat.widget.AppCompatButton
+import androidx.lifecycle.lifecycleScope
+import androidx.room.Room
+import com.example.budjet.data.AppDatabase
+import com.example.budjet.data.User
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var btnBack: ImageView
-    private lateinit var etDob: EditText
+
+    private lateinit var etName: EditText
+    private lateinit var etEmail: EditText
+    private lateinit var etPassword: EditText
+    private lateinit var btnSignUp: AppCompatButton
+
+    private lateinit var db: AppDatabase
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main) // make sure your XML is activity_main.xml
+        setContentView(R.layout.activity_main)
+        db = Room.databaseBuilder(
+            applicationContext,
+            AppDatabase::class.java,
+            "budjet_db"
+        )
+            .fallbackToDestructiveMigration()
+            .build()
 
-        // Initialize views
         btnBack = findViewById(R.id.btnBack)
-        etDob = findViewById(R.id.etDob)
 
-        // Back button closes the activity
+        etName = findViewById(R.id.etName)
+        etEmail = findViewById(R.id.etEmail)
+        etPassword = findViewById(R.id.etPassword)
+        btnSignUp = findViewById(R.id.btnSignUp)
+
         btnBack.setOnClickListener {
             finish()
         }
 
-        // DOB click - placeholder action
-        etDob.setOnClickListener {
-            Toast.makeText(this, "Date picker goes here", Toast.LENGTH_SHORT).show()
+        btnSignUp.setOnClickListener {
+
+            val username = etName.text.toString().trim()
+            val email = etEmail.text.toString().trim()
+            val password = etPassword.text.toString().trim()
+
+            if (username.isEmpty() || email.isEmpty() || password.isEmpty()) {
+                Toast.makeText(this, "Fill all fields", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            lifecycleScope.launch {
+
+                db.budJetDao().insertUser(
+                    User(
+                        username = username,
+                        email = email,
+                        password = password
+                    )
+                )
+
+                runOnUiThread {
+
+                    Toast.makeText(
+                        this@MainActivity,
+                        "Account created!",
+                        Toast.LENGTH_SHORT
+                    ).show()
+
+                    startActivity(
+                        Intent(this@MainActivity, WalletActivity::class.java)
+                    )
+
+                    finish()
+                }
+            }
         }
     }
 }

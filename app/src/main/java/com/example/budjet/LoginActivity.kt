@@ -22,17 +22,20 @@ class LoginActivity : AppCompatActivity() {
         supportActionBar?.hide()
         setContentView(R.layout.activity_login_activtity)
 
-        db = Room.databaseBuilder<AppDatabase>(
+        db = Room.databaseBuilder(
             applicationContext,
             AppDatabase::class.java,
             "budjet_db"
-        ).build()
+        )
+            .fallbackToDestructiveMigration()
+            .build()
 
         // test db
         lifecycleScope.launch {
             db.budJetDao().insertUser(
                 com.example.budjet.data.User(
                     username = "admin",
+                    email = "mail@gmail.com",
                     password = "1234"
                 )
             )

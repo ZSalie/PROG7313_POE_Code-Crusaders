@@ -16,7 +16,6 @@
         android:paddingTop="48dp"
         android:paddingBottom="48dp">
 
-        <!-- Back Button -->
         <ImageView
             android:id="@+id/btnBack"
             android:layout_width="48dp"
@@ -27,7 +26,6 @@
             android:src="@android:drawable/ic_menu_revert"
             app:tint="#FFFFFF" />
 
-        <!-- White Card (edge-to-edge) -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -36,11 +34,8 @@
             android:background="@drawable/bg_white_card"
             android:elevation="4dp"
             android:paddingTop="32dp"
-            android:paddingBottom="32dp"
-            android:paddingStart="0dp"
-            android:paddingEnd="0dp">
+            android:paddingBottom="32dp">
 
-            <!-- Inner padding for form content -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -48,13 +43,11 @@
                 android:paddingStart="32dp"
                 android:paddingEnd="32dp">
 
-                <!-- Title -->
                 <TextView
                     android:id="@+id/tvTitle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="0dp"
-                    android:text="Create new\nAccount"
+                    android:text="Create new&#10;Account"
                     android:textSize="32sp"
                     android:textColor="#000000"
                     android:fontFamily="@font/poppins_bold"/>
@@ -69,7 +62,6 @@
                     android:textColor="#666666"
                     android:fontFamily="@font/poppins_bold"/>
 
-                <!-- Name -->
                 <TextView
                     android:id="@+id/labelName"
                     android:layout_width="wrap_content"
@@ -80,6 +72,7 @@
                     android:textColor="#999999"
                     android:letterSpacing="0.1"
                     android:fontFamily="@font/poppins_regular"/>
+
                 <EditText
                     android:id="@+id/etName"
                     android:layout_width="match_parent"
@@ -93,7 +86,6 @@
                     android:fontFamily="@font/poppins_regular"
                     android:inputType="textPersonName"/>
 
-                <!-- Email -->
                 <TextView
                     android:id="@+id/labelEmail"
                     android:layout_width="wrap_content"
@@ -104,6 +96,7 @@
                     android:textColor="#999999"
                     android:letterSpacing="0.1"
                     android:fontFamily="@font/poppins_regular"/>
+
                 <EditText
                     android:id="@+id/etEmail"
                     android:layout_width="match_parent"
@@ -117,7 +110,6 @@
                     android:fontFamily="@font/poppins_regular"
                     android:inputType="textEmailAddress"/>
 
-                <!-- Password -->
                 <TextView
                     android:id="@+id/labelPassword"
                     android:layout_width="wrap_content"
@@ -128,6 +120,7 @@
                     android:textColor="#999999"
                     android:letterSpacing="0.1"
                     android:fontFamily="@font/poppins_regular"/>
+
                 <EditText
                     android:id="@+id/etPassword"
                     android:layout_width="match_parent"
@@ -141,32 +134,6 @@
                     android:fontFamily="@font/poppins_regular"
                     android:inputType="textPassword"/>
 
-                <!-- DOB -->
-                <TextView
-                    android:id="@+id/labelDob"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:text="DATE OF BIRTH"
-                    android:textSize="12sp"
-                    android:textColor="#999999"
-                    android:letterSpacing="0.1"
-                    android:fontFamily="@font/poppins_regular"/>
-                <EditText
-                    android:id="@+id/etDob"
-                    android:layout_width="match_parent"
-                    android:layout_height="56dp"
-                    android:layout_marginTop="8dp"
-                    android:hint="Select"
-                    android:background="@drawable/bg_input_field"
-                    android:paddingHorizontal="16dp"
-                    android:textColor="#000000"
-                    android:textColorHint="#555555"
-                    android:fontFamily="@font/poppins_regular"
-                    android:focusable="false"
-                    android:clickable="true"/>
-
-                <!-- Sign Up Button -->
                 <androidx.appcompat.widget.AppCompatButton
                     android:id="@+id/btnSignUp"
                     android:layout_width="match_parent"
@@ -181,6 +148,9 @@
                     android:fontFamily="@font/poppins_bold"/>
 
             </LinearLayout>
+
         </LinearLayout>
+
     </LinearLayout>
+
 </ScrollView>
