@@ -12,7 +12,7 @@
         android:layout_marginTop="152dp"
         android:background="@drawable/bg_dark_card"
         android:padding="32dp"
-        app:layout_constraintBottom_toTopOf="@id/btnGetStarted"
+        app:layout_constraintBottom_toTopOf="@id/btnContinue"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
