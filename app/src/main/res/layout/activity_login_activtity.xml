@@ -4,7 +4,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true"
-    android:background="@drawable/teal_background_full">
+    android:background="@drawable/teal_background_full"
+    android:descendantFocusability="beforeDescendants"
+    android:focusableInTouchMode="true">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -23,24 +25,24 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="48dp"
             android:background="@drawable/bg_white_card_right"
             android:paddingHorizontal="32dp"
             android:paddingTop="48dp"
             android:paddingBottom="48dp"
             app:layout_constraintTop_toBottomOf="@id/ivAppLogo"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintVertical_bias="0.0"
-            android:layout_marginTop="48dp">
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
 
             <TextView
                 android:id="@+id/tvTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/poppins_bold"
                 android:text="Login"
-                android:textColor="#000000"
                 android:textSize="36sp"
-                android:gravity="center"
+                android:textColor="#000000"
+                android:fontFamily="@font/poppins_bold"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent" />
@@ -50,10 +52,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:fontFamily="@font/poppins_regular"
                 android:text="Sign in to continue."
-                android:textColor="#666666"
                 android:textSize="14sp"
+                android:textColor="#666666"
+                android:fontFamily="@font/poppins_regular"
                 app:layout_constraintTop_toBottomOf="@id/tvTitle"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent" />
@@ -71,106 +73,106 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:fontFamily="@font/poppins_regular"
                     android:text="Don't have an account? "
+                    android:textSize="12sp"
                     android:textColor="#666666"
-                    android:textSize="12sp" />
+                    android:fontFamily="@font/poppins_regular" />
 
                 <TextView
                     android:id="@+id/tvSignupLink"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:fontFamily="@font/poppins_bold"
                     android:text="Sign up here"
+                    android:textSize="12sp"
                     android:textColor="#096666"
-                    android:textSize="12sp" />
+                    android:fontFamily="@font/poppins_bold" />
             </LinearLayout>
-
-
 
             <TextView
                 android:id="@+id/labelName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="32dp"
-                android:fontFamily="@font/poppins_regular"
                 android:text="NAME"
-                android:textColor="#999999"
                 android:textSize="12sp"
-                android:letterSpacing="0.1"
-                app:layout_constraintTop_toBottomOf="@id/tvSubtitle"
+                android:textColor="#999999"
+                android:fontFamily="@font/poppins_regular"
+                app:layout_constraintTop_toBottomOf="@id/llSignupPrompt"
                 app:layout_constraintStart_toStartOf="parent" />
 
             <EditText
                 android:id="@+id/etName"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="56dp"
                 android:layout_marginTop="8dp"
                 android:background="@drawable/bg_input_field"
-                android:fontFamily="@font/poppins_regular"
                 android:hint="Jane Doe"
                 android:paddingHorizontal="16dp"
-                android:textColorHint="#555555"
                 android:textColor="#000000"
+                android:textColorHint="#555555"
                 android:inputType="textPersonName"
-                app:layout_constraintTop_toBottomOf="@id/labelName" />
+                app:layout_constraintTop_toBottomOf="@id/labelName"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
 
             <TextView
                 android:id="@+id/labelPassword"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:fontFamily="@font/poppins_regular"
                 android:text="PASSWORD"
-                android:textColor="#999999"
                 android:textSize="12sp"
-                android:letterSpacing="0.1"
+                android:textColor="#999999"
+                android:fontFamily="@font/poppins_regular"
                 app:layout_constraintTop_toBottomOf="@id/etName"
                 app:layout_constraintStart_toStartOf="parent" />
 
             <EditText
                 android:id="@+id/etPassword"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="56dp"
                 android:layout_marginTop="8dp"
                 android:background="@drawable/bg_input_field"
-                android:fontFamily="@font/poppins_regular"
                 android:hint="******"
                 android:paddingHorizontal="16dp"
-                android:textColorHint="#555555"
                 android:textColor="#000000"
+                android:textColorHint="#555555"
                 android:inputType="textPassword"
-                app:layout_constraintTop_toBottomOf="@id/labelPassword" />
+                app:layout_constraintTop_toBottomOf="@id/labelPassword"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
 
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btnLogin"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="60dp"
                 android:layout_marginTop="32dp"
                 android:background="@drawable/bg_button"
-                app:backgroundTint="@null"
-                android:fontFamily="@font/poppins_bold"
                 android:text="Log in"
                 android:textColor="#FFFFFF"
                 android:textAllCaps="false"
                 android:textSize="16sp"
-                app:layout_constraintTop_toBottomOf="@id/etPassword" />
+                android:fontFamily="@font/poppins_bold"
+                app:backgroundTint="@null"
+                app:layout_constraintTop_toBottomOf="@id/etPassword"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
 
             <TextView
                 android:id="@+id/tvForgotPassword"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
-                android:fontFamily="@font/poppins_bold"
                 android:text="Forgot Password?"
-                android:textColor="#999999"
                 android:textSize="12sp"
+                android:textColor="#999999"
+                android:fontFamily="@font/poppins_bold"
                 app:layout_constraintTop_toBottomOf="@id/btnLogin"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent" />
 
-
-
         </androidx.constraintlayout.widget.ConstraintLayout>
+
     </androidx.constraintlayout.widget.ConstraintLayout>
+
 </ScrollView>
