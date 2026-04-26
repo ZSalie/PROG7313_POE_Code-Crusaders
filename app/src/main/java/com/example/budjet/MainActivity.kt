@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.EditText
 import android.widget.ImageView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatButton
@@ -16,6 +17,7 @@ import kotlinx.coroutines.launch
 class MainActivity : AppCompatActivity() {
 
     private lateinit var btnBack: ImageView
+    private lateinit var tvSubtitle: TextView
 
     private lateinit var etName: EditText
     private lateinit var etEmail: EditText
@@ -27,6 +29,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
         db = Room.databaseBuilder(
             applicationContext,
             AppDatabase::class.java,
@@ -36,6 +39,7 @@ class MainActivity : AppCompatActivity() {
             .build()
 
         btnBack = findViewById(R.id.btnBack)
+        tvSubtitle = findViewById(R.id.tvSubtitle)
 
         etName = findViewById(R.id.etName)
         etEmail = findViewById(R.id.etEmail)
@@ -44,6 +48,12 @@ class MainActivity : AppCompatActivity() {
 
         btnBack.setOnClickListener {
             finish()
+        }
+
+        tvSubtitle.setOnClickListener {
+            startActivity(
+                Intent(this@MainActivity, LoginActivity::class.java)
+            )
         }
 
         btnSignUp.setOnClickListener {
