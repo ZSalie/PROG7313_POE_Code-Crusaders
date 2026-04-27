@@ -3,6 +3,7 @@ package com.example.budjet.data
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface BudJetDao {
@@ -21,7 +22,7 @@ interface BudJetDao {
 
     // Get all expenses for one user
     @Query("SELECT * FROM expenses WHERE userId = :uid")
-    suspend fun getExpenses(uid: Int): List<Expense>
+    fun getExpenses(uid: Int): Flow<List<Expense>>
 
     // Total spent by user
     @Query("SELECT SUM(amount) FROM expenses WHERE userId = :uid")
@@ -34,4 +35,7 @@ interface BudJetDao {
     // Get latest goal
     @Query("SELECT * FROM goals WHERE userId = :uid LIMIT 1")
     suspend fun getGoal(uid: Int): Goal?
+
+    @Query("SELECT * FROM expenses WHERE userId = :userId ORDER BY date DESC")
+    fun getExpensesByUser(userId: Int): Flow<List<Expense>>
 }
