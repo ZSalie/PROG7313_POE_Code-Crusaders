@@ -1,9 +1,15 @@
 package com.example.budjet.data
 
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "goals")
+@Entity(
+    tableName = "goals",
+    indices = [
+        Index(value = ["userId", "month"], unique = true)
+    ]
+)
 data class Goal(
 
     @PrimaryKey(autoGenerate = true)
