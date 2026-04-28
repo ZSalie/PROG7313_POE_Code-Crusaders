@@ -3,6 +3,8 @@ package com.example.budjet
 import android.content.Intent
 import android.os.Bundle
 import android.widget.TextView
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -35,7 +37,10 @@ class ExpenseListActivity : AppCompatActivity() {
         rvExpenses = findViewById(R.id.rvExpenses)
         tvTotalAmount = findViewById(R.id.tvTotalExpensesAmount)
 
-        adapter = ExpenseAdapter(mutableListOf())
+        adapter = ExpenseAdapter(mutableListOf()) { expense ->
+
+            showDeleteConfirmationDialog(expense)
+        }
         rvExpenses.layoutManager = LinearLayoutManager(this)
         rvExpenses.adapter = adapter
 
@@ -67,8 +72,34 @@ class ExpenseListActivity : AppCompatActivity() {
         tvTotalAmount.text = String.format("R %,.2f", total)
     }
 
-    inner class ExpenseAdapter(private var expenses: MutableList<Expense>) :
-        RecyclerView.Adapter<ExpenseAdapter.ExpenseViewHolder>() {
+    private fun showDeleteConfirmationDialog(expense: Expense) {
+        AlertDialog.Builder(this)
+            .setTitle("Delete Expense")
+            .setMessage("Are you sure you want to delete this expense?\n\nCategory: ${expense.category}\nAmount: R ${expense.amount}")
+            .setPositiveButton("Delete") { _, _ ->
+                deleteExpense(expense)
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun deleteExpense(expense: Expense) {
+        lifecycleScope.launch {
+            try {
+                dao.deleteExpense(expense)
+                Toast.makeText(this@ExpenseListActivity, "Expense deleted", Toast.LENGTH_SHORT).show()
+
+            } catch (e: Exception) {
+                Toast.makeText(this@ExpenseListActivity, "Error deleting expense", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+
+    inner class ExpenseAdapter(
+        private var expenses: MutableList<Expense>,
+        private val onLongPress: (Expense) -> Unit
+    ) : RecyclerView.Adapter<ExpenseAdapter.ExpenseViewHolder>() {
 
         inner class ExpenseViewHolder(itemView: android.view.View) :
             RecyclerView.ViewHolder(itemView) {
@@ -97,6 +128,12 @@ class ExpenseListActivity : AppCompatActivity() {
             }
             holder.iconCategory.setBackgroundColor(android.graphics.Color.parseColor(bgColor))
             holder.iconCategory.text = expense.category.take(1).uppercase()
+
+
+            holder.itemView.setOnLongClickListener {
+                onLongPress(expense)
+                true
+            }
         }
 
         override fun getItemCount(): Int = expenses.size
