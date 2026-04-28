@@ -263,7 +263,7 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="24dp"
         android:layout_marginBottom="24dp"
-        android:text="Add Expense"
+        android:src="@android:drawable/ic_input_add"
         android:textSize="24sp"
         android:textColor="#FFFFFF"
         app:backgroundTint="#096666"
