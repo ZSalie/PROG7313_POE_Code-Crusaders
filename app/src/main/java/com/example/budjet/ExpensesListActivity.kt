@@ -23,6 +23,9 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import java.util.Calendar
 import kotlinx.coroutines.Job
+import android.net.Uri
+import android.view.View
+import java.io.File
 class ExpenseListActivity : AppCompatActivity() {
 
     private lateinit var db: AppDatabase
@@ -218,8 +221,10 @@ class ExpenseListActivity : AppCompatActivity() {
 
         inner class ExpenseViewHolder(itemView: android.view.View) : RecyclerView.ViewHolder(itemView) {
             val iconCategory: TextView = itemView.findViewById(R.id.iconCategory)
+            val ivExpensePhoto: ImageView = itemView.findViewById(R.id.ivExpensePhoto)
             val tvCategory: TextView = itemView.findViewById(R.id.tvCategory)
             val tvDescription: TextView = itemView.findViewById(R.id.tvDescription)
+            val tvDate: TextView = itemView.findViewById(R.id.tvDate)
             val tvAmount: TextView = itemView.findViewById(R.id.tvAmount)
         }
 
@@ -232,7 +237,26 @@ class ExpenseListActivity : AppCompatActivity() {
             val expense = expenses[position]
             holder.tvCategory.text = expense.category
             holder.tvDescription.text = expense.description
+            holder.tvDate.text = expense.date
             holder.tvAmount.text = String.format("R %.2f", expense.amount)
+
+            val photoPath = expense.photoPath
+
+            if (!photoPath.isNullOrEmpty()) {
+                val photoFile = File(photoPath)
+
+                if (photoFile.exists()) {
+                    holder.ivExpensePhoto.setImageURI(Uri.fromFile(photoFile))
+                    holder.ivExpensePhoto.visibility = View.VISIBLE
+                    holder.iconCategory.visibility = View.GONE
+                } else {
+                    holder.ivExpensePhoto.visibility = View.GONE
+                    holder.iconCategory.visibility = View.VISIBLE
+                }
+            } else {
+                holder.ivExpensePhoto.visibility = View.GONE
+                holder.iconCategory.visibility = View.VISIBLE
+            }
 
             val bgColor = when (expense.category.lowercase()) {
                 "groceries" -> "#6200EA"
@@ -240,6 +264,7 @@ class ExpenseListActivity : AppCompatActivity() {
                 "utilities", "water and electricity" -> "#555555"
                 else -> "#096666"
             }
+
             holder.iconCategory.setBackgroundColor(android.graphics.Color.parseColor(bgColor))
             holder.iconCategory.text = expense.category.take(1).uppercase()
 

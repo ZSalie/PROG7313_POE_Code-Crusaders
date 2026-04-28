@@ -5,51 +5,81 @@
     android:layout_height="wrap_content"
     android:layout_marginBottom="16dp"
     android:background="@drawable/bg_dark_card_outlined"
+    android:minHeight="96dp"
     android:padding="20dp">
 
-    <TextView
-        android:id="@+id/iconCategory"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:background="@drawable/bg_circle"
-        android:gravity="center"
-        android:text="R"
-        android:textColor="#FFFFFF"
-        android:textSize="20sp"
-        android:fontFamily="@font/poppins_bold"
-        app:layout_constraintBottom_toBottomOf="parent"
+    <FrameLayout
+        android:id="@+id/photoIconContainer"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/iconCategory"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/bg_circle"
+            android:fontFamily="@font/poppins_bold"
+            android:gravity="center"
+            android:text="R"
+            android:textColor="#FFFFFF"
+            android:textSize="22sp" />
+
+        <ImageView
+            android:id="@+id/ivExpensePhoto"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:visibility="gone" />
+
+    </FrameLayout>
 
     <TextView
         android:id="@+id/tvCategory"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
+        android:layout_marginEnd="12dp"
+        android:fontFamily="@font/poppins_bold"
         android:textColor="#FFFFFF"
         android:textSize="16sp"
-        android:fontFamily="@font/poppins_bold"
-        app:layout_constraintStart_toEndOf="@id/iconCategory"
-        app:layout_constraintTop_toTopOf="@id/iconCategory" />
-
-    <TextView
-        android:id="@+id/tvDescription"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textColor="#999999"
-        android:textSize="12sp"
-        android:fontFamily="@font/poppins_regular"
-        app:layout_constraintStart_toStartOf="@id/tvCategory"
-        app:layout_constraintTop_toBottomOf="@id/tvCategory" />
+        app:layout_constraintEnd_toStartOf="@id/tvAmount"
+        app:layout_constraintStart_toEndOf="@id/photoIconContainer"
+        app:layout_constraintTop_toTopOf="@id/photoIconContainer" />
 
     <TextView
         android:id="@+id/tvAmount"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:fontFamily="@font/poppins_bold"
         android:textColor="#FFFFFF"
         android:textSize="16sp"
-        android:fontFamily="@font/poppins_bold"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@id/iconCategory" />
+        app:layout_constraintTop_toTopOf="@id/photoIconContainer" />
+
+    <TextView
+        android:id="@+id/tvDescription"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:fontFamily="@font/poppins_regular"
+        android:textColor="#999999"
+        android:textSize="12sp"
+        app:layout_constraintEnd_toEndOf="@id/tvCategory"
+        app:layout_constraintStart_toStartOf="@id/tvCategory"
+        app:layout_constraintTop_toBottomOf="@id/tvCategory" />
+
+    <TextView
+        android:id="@+id/tvDate"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:fontFamily="@font/poppins_regular"
+        android:textColor="#4CE5E5"
+        android:textSize="11sp"
+        app:layout_constraintEnd_toEndOf="@id/tvDescription"
+        app:layout_constraintStart_toStartOf="@id/tvDescription"
+        app:layout_constraintTop_toBottomOf="@id/tvDescription" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
