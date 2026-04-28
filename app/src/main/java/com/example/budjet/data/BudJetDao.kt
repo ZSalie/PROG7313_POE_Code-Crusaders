@@ -3,9 +3,15 @@ package com.example.budjet.data
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import kotlinx.coroutines.flow.Flow
-import androidx.room.OnConflictStrategy
+
+data class CategoryCount(
+    val category: String,
+    val count: Int
+)
+
 @Dao
 interface BudJetDao {
 
@@ -37,18 +43,11 @@ interface BudJetDao {
     @Query("SELECT * FROM goals WHERE userId = :uid LIMIT 1")
     suspend fun getGoal(uid: Int): Goal?
 
-    // Expense list screen
-    @Query("SELECT * FROM expenses WHERE userId = :userId ORDER BY date DESC")
-    fun getExpensesByUser(userId: Int): Flow<List<Expense>>
-
-    @Delete
-    suspend fun deleteExpense(expense: Expense)
-
-    // NEW: Get monthly goal
+    // Get monthly goal
     @Query("SELECT * FROM goals WHERE userId = :userId AND month = :month LIMIT 1")
     suspend fun getGoalForMonth(userId: Int, month: String): Goal?
 
-    // NEW: Monthly spending total
+    // Monthly spending total
     @Query("""
         SELECT COALESCE(SUM(amount), 0)
         FROM expenses
@@ -60,7 +59,14 @@ interface BudJetDao {
         monthPattern: String
     ): Double
 
-    // NEW: Filter by category
+    // Expense list screen
+    @Query("SELECT * FROM expenses WHERE userId = :userId ORDER BY date DESC")
+    fun getExpensesByUser(userId: Int): Flow<List<Expense>>
+
+    @Delete
+    suspend fun deleteExpense(expense: Expense)
+
+    // Filter by category
     @Query("""
         SELECT * FROM expenses
         WHERE userId = :userId
@@ -72,11 +78,12 @@ interface BudJetDao {
         category: String
     ): Flow<List<Expense>>
 
-    // NEW: Filter by date range
+    // Filter by date range
     @Query("""
         SELECT * FROM expenses
         WHERE userId = :userId
-        AND date BETWEEN :startDate AND :endDate
+        AND date >= :startDate
+        AND date <= :endDate
         ORDER BY date DESC
     """)
     fun getExpensesByDateRange(
@@ -84,4 +91,19 @@ interface BudJetDao {
         startDate: String,
         endDate: String
     ): Flow<List<Expense>>
+
+    // Category count summary for selected date range
+    @Query("""
+        SELECT category, COUNT(*) as count
+        FROM expenses
+        WHERE userId = :userId
+        AND date >= :startDate
+        AND date <= :endDate
+        GROUP BY category
+    """)
+    fun getCategoryTotalsByDate(
+        userId: Int,
+        startDate: String,
+        endDate: String
+    ): Flow<List<CategoryCount>>
 }
