@@ -436,7 +436,7 @@
             app:tint="#096666" />
 
         <ImageView
-            android:id="@+id/btnGoToExpenses"
+            android:id="@+id/navEdit"
             android:layout_width="0dp"
             android:layout_height="28dp"
             android:layout_weight="1"

@@ -2,7 +2,14 @@ package com.example.budjet
 
 import android.content.Intent
 import android.os.Bundle
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
+import android.widget.Button
+import android.widget.ImageButton
+import android.widget.Spinner
 import android.widget.TextView
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -13,12 +20,7 @@ import com.example.budjet.data.Expense
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
-import android.widget.Spinner
-import android.widget.ArrayAdapter
-import android.widget.AdapterView
-import android.widget.Button
-import android.widget.ImageButton
-import android.widget.ImageView
+
 
 class ExpenseListActivity : AppCompatActivity() {
 
@@ -44,7 +46,9 @@ class ExpenseListActivity : AppCompatActivity() {
         rvExpenses = findViewById(R.id.rvExpenses)
         tvTotalAmount = findViewById(R.id.tvTotalExpensesAmount)
 
-        adapter = ExpenseAdapter(mutableListOf())
+        adapter = ExpenseAdapter(mutableListOf()) { expense ->
+            Toast.makeText(this, "Long pressed: ${expense.description}", Toast.LENGTH_SHORT).show()
+        }
         rvExpenses.layoutManager = LinearLayoutManager(this)
         rvExpenses.adapter = adapter
 
@@ -134,6 +138,7 @@ class ExpenseListActivity : AppCompatActivity() {
             }
         }
     }
+
     private fun showDatePicker(isStartDate: Boolean) {
         val calendar = java.util.Calendar.getInstance()
         val datePicker = android.app.DatePickerDialog(
@@ -171,8 +176,34 @@ class ExpenseListActivity : AppCompatActivity() {
         tvTotalAmount.text = String.format("R %,.2f", total)
     }
 
-    inner class ExpenseAdapter(private var expenses: MutableList<Expense>) :
-        RecyclerView.Adapter<ExpenseAdapter.ExpenseViewHolder>() {
+    private fun showDeleteConfirmationDialog(expense: Expense) {
+        AlertDialog.Builder(this)
+            .setTitle("Delete Expense")
+            .setMessage("Are you sure you want to delete this expense?\n\nCategory: ${expense.category}\nAmount: R ${expense.amount}")
+            .setPositiveButton("Delete") { _, _ ->
+                deleteExpense(expense)
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun deleteExpense(expense: Expense) {
+        lifecycleScope.launch {
+            try {
+                dao.deleteExpense(expense)
+                Toast.makeText(this@ExpenseListActivity, "Expense deleted", Toast.LENGTH_SHORT).show()
+
+            } catch (e: Exception) {
+                Toast.makeText(this@ExpenseListActivity, "Error deleting expense", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+
+    inner class ExpenseAdapter(
+        private var expenses: MutableList<Expense>,
+        private val onLongPress: (Expense) -> Unit
+    ) : RecyclerView.Adapter<ExpenseAdapter.ExpenseViewHolder>() {
 
         inner class ExpenseViewHolder(itemView: android.view.View) :
             RecyclerView.ViewHolder(itemView) {
@@ -180,7 +211,6 @@ class ExpenseListActivity : AppCompatActivity() {
             val tvCategory: TextView = itemView.findViewById(R.id.tvCategory)
             val tvDescription: TextView = itemView.findViewById(R.id.tvDescription)
             val tvAmount: TextView = itemView.findViewById(R.id.tvAmount)
-
         }
 
         override fun onCreateViewHolder(parent: android.view.ViewGroup, viewType: Int): ExpenseViewHolder {
@@ -202,6 +232,12 @@ class ExpenseListActivity : AppCompatActivity() {
             }
             holder.iconCategory.setBackgroundColor(android.graphics.Color.parseColor(bgColor))
             holder.iconCategory.text = expense.category.take(1).uppercase()
+
+
+            holder.itemView.setOnLongClickListener {
+                onLongPress(expense)
+                true
+            }
         }
 
         override fun getItemCount(): Int = expenses.size

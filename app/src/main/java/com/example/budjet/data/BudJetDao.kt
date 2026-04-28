@@ -3,6 +3,7 @@ package com.example.budjet.data
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Delete
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -39,8 +40,9 @@ interface BudJetDao {
     @Query("SELECT * FROM expenses WHERE userId = :userId ORDER BY date DESC")
     fun getExpensesByUser(userId: Int): Flow<List<Expense>>
 
+    @Delete
+    suspend fun deleteExpense(expense: Expense)
 
-    //Ruan
     @Query("SELECT * FROM expenses WHERE userId = :userId AND category = :category ORDER BY date DESC")
     fun getExpensesByCategory(userId: Int, category: String): Flow<List<Expense>>
 
