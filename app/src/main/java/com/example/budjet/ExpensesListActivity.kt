@@ -31,8 +31,8 @@ class ExpenseListActivity : AppCompatActivity() {
     private lateinit var tvTotalAmount: TextView
     private var currentUserId: Int = 0
     private var selectedCategory: String = "All"
-    private var startDate: Long? = null
-    private var endDate: Long? = null
+    private var startDateStr: String? = null
+    private var endDateStr: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -69,11 +69,11 @@ class ExpenseListActivity : AppCompatActivity() {
         findViewById<Button>(R.id.btnEndDate).setOnClickListener { showDatePicker(false) }
 
         findViewById<ImageButton>(R.id.btnClearDate).setOnClickListener {
-            startDate = null
-            endDate = null
+            startDateStr = null
+            endDateStr = null
             findViewById<Button>(R.id.btnStartDate).text = "Start Date"
             findViewById<Button>(R.id.btnEndDate).text = "End Date"
-            loadExpenses() // Reset the list
+            loadExpenses()
         }
 
         findViewById<FloatingActionButton>(R.id.fabAddExpense).setOnClickListener {
@@ -120,15 +120,12 @@ class ExpenseListActivity : AppCompatActivity() {
     private fun loadExpenses() {
         lifecycleScope.launch {
             val flow = when {
-                // Priority 1: Date Filtering
-                startDate != null && endDate != null -> {
-                    dao.getExpensesByDateRange(currentUserId, startDate!!, endDate!!)
+                startDateStr != null && endDateStr != null -> {
+                    dao.getExpensesByDateRange(currentUserId, startDateStr!!, endDateStr!!)
                 }
-                // Priority 2: Category Filtering
                 selectedCategory != "All" -> {
                     dao.getExpensesByCategory(currentUserId, selectedCategory)
                 }
-                // Default: Show All
                 else -> dao.getExpensesByUser(currentUserId)
             }
 
@@ -141,29 +138,23 @@ class ExpenseListActivity : AppCompatActivity() {
 
     private fun showDatePicker(isStartDate: Boolean) {
         val calendar = java.util.Calendar.getInstance()
-        val datePicker = android.app.DatePickerDialog(
-            this,
-            { _, year, month, day ->
-                val selectedCal = java.util.Calendar.getInstance()
-                selectedCal.set(year, month, day)
+        android.app.DatePickerDialog(this, { _, year, month, day ->
 
-                if (isStartDate) {
-                    startDate = selectedCal.timeInMillis
-                    findViewById<Button>(R.id.btnStartDate).text = "$day/${month + 1}/$year"
-                } else {
-                    endDate = selectedCal.timeInMillis
-                    findViewById<Button>(R.id.btnEndDate).text = "$day/${month + 1}/$year"
-                }
 
-                if (startDate != null && endDate != null) {
-                    loadExpenses()
-                }
-            },
-            calendar.get(java.util.Calendar.YEAR),
-            calendar.get(java.util.Calendar.MONTH),
-            calendar.get(java.util.Calendar.DAY_OF_MONTH)
-        )
-        datePicker.show()
+            val formattedDate = String.format("%04d-%02d-%02d", year, month + 1, day)
+
+            if (isStartDate) {
+                startDateStr = formattedDate
+                findViewById<Button>(R.id.btnStartDate).text = formattedDate
+            } else {
+                endDateStr = formattedDate
+                findViewById<Button>(R.id.btnEndDate).text = formattedDate
+            }
+
+            if (startDateStr != null && endDateStr != null) {
+                loadExpenses()
+            }
+        }, calendar.get(java.util.Calendar.YEAR), calendar.get(java.util.Calendar.MONTH), calendar.get(java.util.Calendar.DAY_OF_MONTH)).show()
     }
 
     fun filterByCategory(category: String) {

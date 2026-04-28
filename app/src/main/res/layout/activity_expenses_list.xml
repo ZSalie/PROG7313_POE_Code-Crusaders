@@ -134,7 +134,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="All time"
+                    android:text="Filter Options:"
                     android:textColor="#FFFFFF"
                     android:textSize="14sp"
                     android:fontFamily="@font/poppins_regular" />
@@ -158,6 +158,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="End Date" />
+
 
                 <ImageButton
                     android:id="@+id/btnClearDate"
