@@ -6,6 +6,7 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
@@ -35,9 +36,17 @@ class ExpenseListActivity : AppCompatActivity() {
     private var startDateStr: String? = null
     private var endDateStr: String? = null
 
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_expenses_list)
+
+        findViewById<ImageView>(R.id.navHome).setOnClickListener {
+
+            startActivity(Intent(this, WalletActivity::class.java))
+            finish()
+        }
 
         currentUserId = getSharedPreferences("app_prefs", MODE_PRIVATE).getInt("currentUserId", 1)
 
@@ -95,6 +104,7 @@ class ExpenseListActivity : AppCompatActivity() {
         super.onResume()
         loadExpenses()
     }
+
 
     private fun loadExpenses() {
         lifecycleScope.launch {

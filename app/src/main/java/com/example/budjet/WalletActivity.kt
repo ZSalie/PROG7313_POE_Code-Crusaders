@@ -18,10 +18,7 @@ class WalletActivity : AppCompatActivity() {
             finish()
         }
 
-        findViewById<ImageView>(R.id.navEdit).setOnClickListener {
 
-            startActivity(Intent(this, AddExpenseActivity::class.java))
-        }
 
 
     }
