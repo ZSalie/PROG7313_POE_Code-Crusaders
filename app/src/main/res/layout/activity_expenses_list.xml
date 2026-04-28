@@ -204,11 +204,13 @@
                         android:visibility="invisible"/>
 
                 </LinearLayout>
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/rvExpenses"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:nestedScrollingEnabled="false" />
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvExpenses"
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            android:nestedScrollingEnabled="true"
+            android:clipToPadding="false"
+            android:paddingBottom="80dp" />
 
             </LinearLayout>
         </ScrollView>

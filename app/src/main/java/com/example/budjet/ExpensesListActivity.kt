@@ -22,7 +22,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import java.util.Calendar
-import com.example.budjet.data.CategoryCount
+import kotlinx.coroutines.Job
 class ExpenseListActivity : AppCompatActivity() {
 
     private lateinit var db: AppDatabase
@@ -35,6 +35,8 @@ class ExpenseListActivity : AppCompatActivity() {
     private var selectedCategory: String = "All"
     private var startDateStr: String? = null
     private var endDateStr: String? = null
+    private var expensesJob: Job? = null
+
 
 
 
@@ -107,24 +109,35 @@ class ExpenseListActivity : AppCompatActivity() {
 
 
     private fun loadExpenses() {
-        lifecycleScope.launch {
+        expensesJob?.cancel()
+
+        expensesJob = lifecycleScope.launch {
             val flow: Flow<List<Expense>> = when {
                 startDateStr != null && endDateStr != null -> {
                     loadCategoryTotals()
                     dao.getExpensesByDateRange(currentUserId, startDateStr!!, endDateStr!!)
                 }
+
                 selectedCategory != "All" -> {
                     tvCategoryTotals.text = ""
                     dao.getExpensesByCategory(currentUserId, selectedCategory)
                 }
+
                 else -> {
                     tvCategoryTotals.text = ""
                     dao.getExpensesByUser(currentUserId)
                 }
             }
+
             flow.collect { expenses ->
                 adapter.updateExpenses(expenses)
                 updateTotalAmount(expenses)
+
+                Toast.makeText(
+                    this@ExpenseListActivity,
+                    "Loaded ${expenses.size} expenses",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
     }
