@@ -44,4 +44,6 @@ interface BudJetDao {
     @Query("SELECT * FROM expenses WHERE userId = :userId AND category = :category ORDER BY date DESC")
     fun getExpensesByCategory(userId: Int, category: String): Flow<List<Expense>>
 
+    @Query("SELECT * FROM expenses WHERE userId = :userId AND date >= :startDate AND date <= :endDate ORDER BY date DESC")
+    fun getExpensesByDateRange(userId: Int, startDate: Long, endDate: Long): Flow<List<Expense>>
 }
