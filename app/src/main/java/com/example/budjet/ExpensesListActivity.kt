@@ -13,6 +13,11 @@ import com.example.budjet.data.Expense
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import android.widget.Spinner
+import android.widget.ArrayAdapter
+import android.widget.AdapterView
+import android.widget.Button
+import android.widget.ImageView
 
 class ExpenseListActivity : AppCompatActivity() {
 
@@ -22,6 +27,7 @@ class ExpenseListActivity : AppCompatActivity() {
     private lateinit var rvExpenses: RecyclerView
     private lateinit var tvTotalAmount: TextView
     private var currentUserId: Int = 0
+    private var selectedCategory: String = "All"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,10 +45,52 @@ class ExpenseListActivity : AppCompatActivity() {
         rvExpenses.layoutManager = LinearLayoutManager(this)
         rvExpenses.adapter = adapter
 
+//        val btnExpenses: ImageView = findViewById(R.id.btnGoToExpenses)
+//
+//        btnExpenses.setOnClickListener {
+//            // Create an Intent to go from THIS activity to the ExpenseListActivity
+//            val intent = Intent(this, ExpenseListActivity::class.java)
+//
+//            // If your ExpenseListActivity needs to know which user is logged in
+//            // (which it does, based on the code you shared earlier), pass the ID here:
+//            val currentUserId = getSharedPreferences("app_prefs", MODE_PRIVATE).getInt("currentUserId", 1)
+//            intent.putExtra("currentUserId", currentUserId)
+//
+//            startActivity(intent)
+//        }
+
         findViewById<FloatingActionButton>(R.id.fabAddExpense).setOnClickListener {
             val intent = Intent(this, AddExpenseActivity::class.java)
             intent.putExtra("USER_ID", currentUserId)
             startActivity(intent)
+        }
+
+        val spinnerFilter: Spinner = findViewById(R.id.spinnerCategoryFilter)
+        val categories = arrayOf(
+            "All",
+            "Groceries",
+            "Clothing",
+            "Utilities",
+            "Water and Electricity",
+            "Other"
+        )
+        val arrayAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, categories)
+        arrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spinnerFilter.adapter = arrayAdapter
+        spinnerFilter.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: android.view.View?, position: Int, id: Long) {
+
+                selectedCategory = categories[position]
+
+
+                loadExpenses()
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                // Default to showing everything if nothing is picked
+                selectedCategory = "All"
+                loadExpenses()
+            }
         }
 
         loadExpenses()
@@ -55,11 +103,21 @@ class ExpenseListActivity : AppCompatActivity() {
 
     private fun loadExpenses() {
         lifecycleScope.launch {
-            dao.getExpensesByUser(currentUserId).collect { expenses ->
+            val flow = if (selectedCategory == "All") {
+                dao.getExpensesByUser(currentUserId)
+            } else {
+                dao.getExpensesByCategory(currentUserId, selectedCategory)
+            }
+            flow.collect { expenses ->
                 adapter.updateExpenses(expenses)
                 updateTotalAmount(expenses)
             }
         }
+    }
+
+    fun filterByCategory(category: String) {
+        selectedCategory = category
+        loadExpenses()
     }
 
     private fun updateTotalAmount(expenses: List<Expense>) {
@@ -76,6 +134,7 @@ class ExpenseListActivity : AppCompatActivity() {
             val tvCategory: TextView = itemView.findViewById(R.id.tvCategory)
             val tvDescription: TextView = itemView.findViewById(R.id.tvDescription)
             val tvAmount: TextView = itemView.findViewById(R.id.tvAmount)
+
         }
 
         override fun onCreateViewHolder(parent: android.view.ViewGroup, viewType: Int): ExpenseViewHolder {

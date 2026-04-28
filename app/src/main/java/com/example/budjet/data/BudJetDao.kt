@@ -38,4 +38,10 @@ interface BudJetDao {
 
     @Query("SELECT * FROM expenses WHERE userId = :userId ORDER BY date DESC")
     fun getExpensesByUser(userId: Int): Flow<List<Expense>>
+
+
+    //Ruan
+    @Query("SELECT * FROM expenses WHERE userId = :userId AND category = :category ORDER BY date DESC")
+    fun getExpensesByCategory(userId: Int, category: String): Flow<List<Expense>>
+
 }
