@@ -184,6 +184,15 @@
                     android:textSize="16sp"
                     android:fontFamily="@font/poppins_regular" />
 
+                <TextView
+                    android:id="@+id/tvCategoryTotals"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="16dp"
+                    android:text="Select dates to see totals"
+                    android:textSize="18sp"
+                    android:textColor="#FFFFFF"
+                    android:textStyle="bold" />
                 <Spinner
                     android:id="@+id/spinnerCategoryFilter"
                     android:layout_width="match_parent"
@@ -191,7 +200,8 @@
                     android:layout_margin="16dp"
                     android:padding="8dp"
                     android:background="@android:drawable/btn_dropdown"
-                    android:spinnerMode="dropdown" />
+                    android:spinnerMode="dropdown"
+                    android:visibility="invisible"/>
 
             </LinearLayout>
             <androidx.recyclerview.widget.RecyclerView

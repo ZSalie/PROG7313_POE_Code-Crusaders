@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.budjet.data.AppDatabase
 import com.example.budjet.data.BudJetDao
+import com.example.budjet.data.CategoryCount
 import com.example.budjet.data.Expense
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.flow.collect
@@ -117,6 +118,32 @@ class ExpenseListActivity : AppCompatActivity() {
         loadExpenses()
     }
 
+    private fun loadCategoryTotals() {
+        lifecycleScope.launch {
+            if (startDateStr != null && endDateStr != null) {
+                dao.getCategoryTotalsByDate(currentUserId, startDateStr!!, endDateStr!!)
+                    .collect { totals ->
+                        displayTotals(totals)
+                    }
+            }
+        }
+    }
+    private fun displayTotals(totals: List<CategoryCount>) {
+        if (totals.isEmpty()) {
+            findViewById<TextView>(R.id.tvCategoryTotals).text = "No expenses found for these dates."
+            return
+        }
+
+        val sb = StringBuilder()
+        sb.append("--- Summary for Period ---\n")
+
+        for (item in totals) {
+            sb.append("• ${item.category}: ${item.count} items\n")
+        }
+
+        findViewById<TextView>(R.id.tvCategoryTotals).text = sb.toString()
+    }
+
     private fun loadExpenses() {
         lifecycleScope.launch {
             val flow = when {
@@ -153,6 +180,9 @@ class ExpenseListActivity : AppCompatActivity() {
 
             if (startDateStr != null && endDateStr != null) {
                 loadExpenses()
+            }
+            if (startDateStr != null && endDateStr != null) {
+                loadCategoryTotals()
             }
         }, calendar.get(java.util.Calendar.YEAR), calendar.get(java.util.Calendar.MONTH), calendar.get(java.util.Calendar.DAY_OF_MONTH)).show()
     }

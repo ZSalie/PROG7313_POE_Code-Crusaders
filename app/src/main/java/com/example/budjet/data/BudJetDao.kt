@@ -6,6 +6,10 @@ import androidx.room.Query
 import androidx.room.Delete
 import kotlinx.coroutines.flow.Flow
 
+data class CategoryCount(
+    val category: String,
+    val count: Int
+)
 @Dao
 interface BudJetDao {
 
@@ -48,4 +52,13 @@ interface BudJetDao {
 
     @Query("SELECT * FROM expenses WHERE userId = :userId AND date >= :startDate AND date <= :endDate ORDER BY date DESC")
     fun getExpensesByDateRange(userId: Int, startDate: String, endDate: String): Flow<List<Expense>>
+
+    @Query("""
+    SELECT category, COUNT(*) as count 
+    FROM expenses 
+    WHERE userId = :userId AND date >= :startDate AND date <= :endDate 
+    GROUP BY category
+""")
+    fun getCategoryTotalsByDate(userId: Int, startDate: String, endDate: String): Flow<List<CategoryCount>>
 }
+
