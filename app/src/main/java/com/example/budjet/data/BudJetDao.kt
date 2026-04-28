@@ -1,15 +1,11 @@
 package com.example.budjet.data
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
-import androidx.room.Delete
 import kotlinx.coroutines.flow.Flow
-
-data class CategoryCount(
-    val category: String,
-    val count: Int
-)
+import androidx.room.OnConflictStrategy
 @Dao
 interface BudJetDao {
 
@@ -34,31 +30,58 @@ interface BudJetDao {
     suspend fun getTotal(uid: Int): Double?
 
     // Save goal
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertGoal(goal: Goal)
 
     // Get latest goal
     @Query("SELECT * FROM goals WHERE userId = :uid LIMIT 1")
     suspend fun getGoal(uid: Int): Goal?
 
+    // Expense list screen
     @Query("SELECT * FROM expenses WHERE userId = :userId ORDER BY date DESC")
     fun getExpensesByUser(userId: Int): Flow<List<Expense>>
 
     @Delete
     suspend fun deleteExpense(expense: Expense)
 
+    // NEW: Get monthly goal
+    @Query("SELECT * FROM goals WHERE userId = :userId AND month = :month LIMIT 1")
+    suspend fun getGoalForMonth(userId: Int, month: String): Goal?
 
-    @Query("SELECT * FROM expenses WHERE userId = :userId AND category = :category ORDER BY date DESC")
-    fun getExpensesByCategory(userId: Int, category: String): Flow<List<Expense>>
-
-    @Query("SELECT * FROM expenses WHERE userId = :userId AND date >= :startDate AND date <= :endDate ORDER BY date DESC")
-    fun getExpensesByDateRange(userId: Int, startDate: String, endDate: String): Flow<List<Expense>>
-
+    // NEW: Monthly spending total
     @Query("""
-    SELECT category, COUNT(*) as count 
-    FROM expenses 
-    WHERE userId = :userId AND date >= :startDate AND date <= :endDate 
-    GROUP BY category
-""")
-    fun getCategoryTotalsByDate(userId: Int, startDate: String, endDate: String): Flow<List<CategoryCount>>
+        SELECT COALESCE(SUM(amount), 0)
+        FROM expenses
+        WHERE userId = :userId
+        AND date LIKE :monthPattern
+    """)
+    suspend fun getTotalSpendingForMonth(
+        userId: Int,
+        monthPattern: String
+    ): Double
+
+    // NEW: Filter by category
+    @Query("""
+        SELECT * FROM expenses
+        WHERE userId = :userId
+        AND category = :category
+        ORDER BY date DESC
+    """)
+    fun getExpensesByCategory(
+        userId: Int,
+        category: String
+    ): Flow<List<Expense>>
+
+    // NEW: Filter by date range
+    @Query("""
+        SELECT * FROM expenses
+        WHERE userId = :userId
+        AND date BETWEEN :startDate AND :endDate
+        ORDER BY date DESC
+    """)
+    fun getExpensesByDateRange(
+        userId: Int,
+        startDate: String,
+        endDate: String
+    ): Flow<List<Expense>>
 }
