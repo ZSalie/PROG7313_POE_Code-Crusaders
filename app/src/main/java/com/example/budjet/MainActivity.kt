@@ -17,7 +17,7 @@ import kotlinx.coroutines.launch
 class MainActivity : AppCompatActivity() {
 
     private lateinit var btnBack: ImageView
-    private lateinit var tvSubtitle: TextView
+    private lateinit var tvLoginLink: TextView
 
     private lateinit var etName: EditText
     private lateinit var etEmail: EditText
@@ -39,7 +39,7 @@ class MainActivity : AppCompatActivity() {
             .build()
 
         btnBack = findViewById(R.id.btnBack)
-        tvSubtitle = findViewById(R.id.tvSubtitle)
+        tvLoginLink = findViewById(R.id.tvLoginLink)
 
         etName = findViewById(R.id.etName)
         etEmail = findViewById(R.id.etEmail)
@@ -50,10 +50,8 @@ class MainActivity : AppCompatActivity() {
             finish()
         }
 
-        tvSubtitle.setOnClickListener {
-            startActivity(
-                Intent(this@MainActivity, LoginActivity::class.java)
-            )
+        tvLoginLink.setOnClickListener {
+            startActivity(Intent(this, LoginActivity::class.java))
         }
 
         btnSignUp.setOnClickListener {

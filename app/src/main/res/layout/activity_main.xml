@@ -52,15 +52,34 @@
                     android:textColor="#000000"
                     android:fontFamily="@font/poppins_bold"/>
 
-                <TextView
-                    android:id="@+id/tvSubtitle"
+                <LinearLayout
+                    android:id="@+id/llLoginPrompt"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:text="Already Registered? Log in here."
-                    android:textSize="12sp"
-                    android:textColor="#666666"
-                    android:fontFamily="@font/poppins_bold"/>
+                    android:orientation="horizontal"
+                    app:layout_constraintTop_toBottomOf="@id/tvTitle"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Already Registered? "
+                        android:textSize="12sp"
+                        android:textColor="#666666"
+                        android:fontFamily="@font/poppins_regular" />
+
+                    <TextView
+                        android:id="@+id/tvLoginLink"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Log in here"
+                        android:textSize="12sp"
+                        android:textColor="#096666"
+                        android:fontFamily="@font/poppins_bold" />
+
+                </LinearLayout>
 
                 <TextView
                     android:id="@+id/labelName"
@@ -69,7 +88,7 @@
                     android:layout_marginTop="24dp"
                     android:text="NAME"
                     android:textSize="12sp"
-                    android:textColor="#999999"
+                    android:textColorHint="#555555"
                     android:letterSpacing="0.1"
                     android:fontFamily="@font/poppins_regular"/>
 
@@ -78,11 +97,11 @@
                     android:layout_width="match_parent"
                     android:layout_height="56dp"
                     android:layout_marginTop="8dp"
-                    android:hint="Jane Doe"
+                    android:hint="User name"
                     android:background="@drawable/bg_input_field"
                     android:paddingHorizontal="16dp"
                     android:textColor="#000000"
-                    android:textColorHint="#555555"
+                    android:textColorHint="#9E9E9E"
                     android:fontFamily="@font/poppins_regular"
                     android:inputType="textPersonName"/>
 
@@ -93,7 +112,7 @@
                     android:layout_marginTop="16dp"
                     android:text="EMAIL"
                     android:textSize="12sp"
-                    android:textColor="#999999"
+                    android:textColorHint="#555555"
                     android:letterSpacing="0.1"
                     android:fontFamily="@font/poppins_regular"/>
 
@@ -102,11 +121,11 @@
                     android:layout_width="match_parent"
                     android:layout_height="56dp"
                     android:layout_marginTop="8dp"
-                    android:hint="hello@reallygreatsite.com"
+                    android:hint="name@example.com"
                     android:background="@drawable/bg_input_field"
                     android:paddingHorizontal="16dp"
                     android:textColor="#000000"
-                    android:textColorHint="#555555"
+                    android:textColorHint="#9E9E9E"
                     android:fontFamily="@font/poppins_regular"
                     android:inputType="textEmailAddress"/>
 
@@ -117,7 +136,7 @@
                     android:layout_marginTop="16dp"
                     android:text="PASSWORD"
                     android:textSize="12sp"
-                    android:textColor="#999999"
+                    android:textColorHint="#555555"
                     android:letterSpacing="0.1"
                     android:fontFamily="@font/poppins_regular"/>
 
@@ -129,8 +148,7 @@
                     android:hint="******"
                     android:background="@drawable/bg_input_field"
                     android:paddingHorizontal="16dp"
-                    android:textColor="#000000"
-                    android:textColorHint="#555555"
+                    android:textColorHint="#9E9E9E"
                     android:fontFamily="@font/poppins_regular"
                     android:inputType="textPassword"/>
 
