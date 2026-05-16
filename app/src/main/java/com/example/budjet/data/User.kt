@@ -1,15 +1,10 @@
 package com.example.budjet.data
 
-import androidx.room.Entity
-import androidx.room.PrimaryKey
+import com.google.firebase.firestore.DocumentId
 
-@Entity(tableName = "users")
 data class User(
-
-    @PrimaryKey(autoGenerate = true)
-    val userId: Int = 0,
-
-    val username: String,
-    val email:String,
-    val password: String
+    @DocumentId
+    var userId: String = "",
+    var username: String = "",
+    var email: String = ""
 )

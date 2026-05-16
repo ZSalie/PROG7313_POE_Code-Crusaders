@@ -1,5 +1,6 @@
 package com.example.budjet
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.widget.EditText
@@ -7,42 +8,25 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatButton
-import androidx.lifecycle.lifecycleScope
-import androidx.room.Room
-import com.example.budjet.data.AppDatabase
-import kotlinx.coroutines.launch
+import com.google.firebase.auth.FirebaseAuth
 
 class LoginActivity : AppCompatActivity() {
 
-    lateinit var db: AppDatabase
+    private lateinit var auth: FirebaseAuth
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         supportActionBar?.hide()
         setContentView(R.layout.activity_login_activtity)
 
-        db = Room.databaseBuilder(
-            applicationContext,
-            AppDatabase::class.java,
-            "budjet_db"
-        )
-            .fallbackToDestructiveMigration()
-            .build()
+        // Initialize Firebase Auth
+        auth = FirebaseAuth.getInstance()
 
-        // test db
-        lifecycleScope.launch {
-            db.budJetDao().insertUser(
-                com.example.budjet.data.User(
-                    username = "admin",
-                    email = "mail@gmail.com",
-                    password = "1234"
-                )
-            )
-        }
         val tvSignupLink = findViewById<TextView>(R.id.tvSignupLink)
         val btnLogin = findViewById<AppCompatButton>(R.id.btnLogin)
-        val etName = findViewById<EditText>(R.id.etName)
+
+        // Firebase standard auth uses email instead of a simple username
+        val etEmail = findViewById<EditText>(R.id.etName)
         val etPassword = findViewById<EditText>(R.id.etPassword)
 
         tvSignupLink.setOnClickListener {
@@ -50,42 +34,44 @@ class LoginActivity : AppCompatActivity() {
         }
 
         btnLogin.setOnClickListener {
+            val email = etEmail.text.toString().trim()
+            val password = etPassword.text.toString().trim()
 
-            val username = etName.text.toString()
-            val password = etPassword.text.toString()
-
-            if (username.isEmpty() || password.isEmpty()) {
-                Toast.makeText(this, "Enter username and password", Toast.LENGTH_SHORT).show()
+            if (email.isEmpty() || password.isEmpty()) {
+                Toast.makeText(this, "Enter email and password", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
-            lifecycleScope.launch {
+            // Authenticate with Firebase
+            auth.signInWithEmailAndPassword(email, password)
+                .addOnCompleteListener(this) { task ->
+                    if (task.isSuccessful) {
+                        val user = auth.currentUser
 
-                val user = db.budJetDao().login(username, password)
-
-                runOnUiThread {
-                    if (user != null) {
+                        // Save the Firebase unique ID string to SharedPreferences
+                        val sharedPref = getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
+                        with(sharedPref.edit()) {
+                            putString("currentUserId", user?.uid)
+                            apply()
+                        }
 
                         Toast.makeText(
                             this@LoginActivity,
-                            "Welcome back, $username!",
+                            "Welcome back!",
                             Toast.LENGTH_SHORT
                         ).show()
 
-                        startActivity(
-                            Intent(this@LoginActivity, WalletActivity::class.java)
-                        )
+                        startActivity(Intent(this@LoginActivity, WalletActivity::class.java))
+                        finish() // Removes LoginActivity from the back stack
 
                     } else {
-
                         Toast.makeText(
                             this@LoginActivity,
-                            "Invalid login details",
-                            Toast.LENGTH_SHORT
+                            "Invalid login details: ${task.exception?.message}",
+                            Toast.LENGTH_LONG
                         ).show()
                     }
                 }
-            }
         }
     }
 }

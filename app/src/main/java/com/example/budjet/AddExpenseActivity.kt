@@ -1,7 +1,6 @@
 package com.example.budjet
 
 import android.Manifest
-import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -14,14 +13,13 @@ import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatAutoCompleteTextView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.lifecycle.lifecycleScope
-import com.example.budjet.data.AppDatabase
+import com.example.budjet.data.BudgetRepository
 import com.example.budjet.data.Expense
 import com.google.android.material.textfield.TextInputEditText
 import kotlinx.coroutines.launch
@@ -33,8 +31,8 @@ import java.util.Locale
 
 class AddExpenseActivity : AppCompatActivity() {
 
-    private lateinit var db: AppDatabase
-    private lateinit var dao: com.example.budjet.data.BudJetDao
+    // Replaced AppDatabase and Dao with the new repository
+    private lateinit var repository: BudgetRepository
 
     private lateinit var btnTakePhoto: Button
     private lateinit var btnPickGallery: Button
@@ -51,9 +49,8 @@ class AddExpenseActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_expense)
 
-        db = AppDatabase.getInstance(this)
-        dao = db.budJetDao()
-
+        // Initialize the Firebase repository
+        repository = BudgetRepository()
 
         val btnSave = findViewById<Button>(R.id.btnSaveExpense)
         val etCategory = findViewById<AppCompatAutoCompleteTextView>(R.id.etCategory)
@@ -66,19 +63,16 @@ class AddExpenseActivity : AppCompatActivity() {
         btnPickGallery = findViewById(R.id.btnPickGallery)
         ivPhotoPreview = findViewById(R.id.ivPhotoPreview)
 
-
         val categories = listOf("Groceries", "Entertainment", "Clothing", "Maintenance", "Utilities", "Travel")
         val adapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, categories)
         etCategory.setAdapter(adapter)
         etCategory.threshold = 1
-
 
         val currentDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
         val currentTime = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())
         etDate.setText(currentDate)
         etStartTime.setText(currentTime)
         etEndTime.setText(currentTime)
-
 
         btnTakePhoto.setOnClickListener { checkCameraPermissionAndLaunch() }
         btnPickGallery.setOnClickListener { checkGalleryPermissionAndLaunch() }
@@ -103,10 +97,11 @@ class AddExpenseActivity : AppCompatActivity() {
             }
 
             val sharedPref = getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
-            val userId = sharedPref.getInt("currentUserId", 1)
+            // Convert the saved integer ID to a string to match the new Firebase data model
+            val userId = sharedPref.getString("currentUserId", "") ?: ""
 
+            // Created the Expense object without passing expenseId, letting the default handle it
             val expense = Expense(
-                expenseId = 0,
                 userId = userId,
                 category = category,
                 amount = amount,
@@ -118,13 +113,13 @@ class AddExpenseActivity : AppCompatActivity() {
             )
 
             lifecycleScope.launch {
-                dao.insertExpense(expense)
+                // Call the new repository function to save to Firestore
+                repository.insertExpense(expense)
                 Toast.makeText(this@AddExpenseActivity, "Expense saved", Toast.LENGTH_SHORT).show()
                 finish()
             }
         }
     }
-
 
     private fun checkCameraPermissionAndLaunch() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
@@ -136,7 +131,6 @@ class AddExpenseActivity : AppCompatActivity() {
 
     private fun checkGalleryPermissionAndLaunch() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_IMAGES) != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_MEDIA_IMAGES), GALLERY_PERMISSION_CODE)
             } else {
@@ -217,7 +211,6 @@ class AddExpenseActivity : AppCompatActivity() {
                 GALLERY_REQUEST_CODE -> {
                     data?.data?.let { uri ->
                         photoUri = uri
-
                         val savedPath = saveGalleryImageToPrivateFile(uri)
                         if (savedPath != null) {
                             currentPhotoPath = savedPath

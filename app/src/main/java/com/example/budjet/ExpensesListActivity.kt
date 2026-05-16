@@ -1,7 +1,9 @@
 package com.example.budjet
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Button
@@ -15,48 +17,38 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.budjet.data.AppDatabase
-import com.example.budjet.data.BudJetDao
+import com.example.budjet.data.BudgetRepository
 import com.example.budjet.data.Expense
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.launch
-import java.util.Calendar
 import kotlinx.coroutines.Job
-import android.net.Uri
-import android.view.View
+import kotlinx.coroutines.launch
 import java.io.File
+import java.util.Calendar
+
 class ExpenseListActivity : AppCompatActivity() {
 
-    private lateinit var db: AppDatabase
-    private lateinit var dao: BudJetDao
+    private lateinit var repository: BudgetRepository
     private lateinit var adapter: ExpenseAdapter
     private lateinit var rvExpenses: RecyclerView
     private lateinit var tvTotalAmount: TextView
     private lateinit var tvCategoryTotals: TextView
-    private var currentUserId: Int = 0
+    private var currentUserId: String = ""
     private var selectedCategory: String = "All"
     private var startDateStr: String? = null
     private var endDateStr: String? = null
     private var expensesJob: Job? = null
-
-
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_expenses_list)
 
         findViewById<ImageView>(R.id.navHome).setOnClickListener {
-
             startActivity(Intent(this, WalletActivity::class.java))
             finish()
         }
 
-        currentUserId = getSharedPreferences("app_prefs", MODE_PRIVATE).getInt("currentUserId", 1)
-
-        db = AppDatabase.getInstance(this)
-        dao = db.budJetDao()
+        currentUserId = getSharedPreferences("app_prefs", MODE_PRIVATE).getString("currentUserId", "") ?: ""
+        repository = BudgetRepository()
 
         rvExpenses = findViewById(R.id.rvExpenses)
         tvTotalAmount = findViewById(R.id.tvTotalExpensesAmount)
@@ -82,6 +74,7 @@ class ExpenseListActivity : AppCompatActivity() {
 
         findViewById<FloatingActionButton>(R.id.fabAddExpense).setOnClickListener {
             val intent = Intent(this, AddExpenseActivity::class.java)
+            // Note: Intent extras might need to be adjusted if your target expects a String now
             intent.putExtra("USER_ID", currentUserId)
             startActivity(intent)
         }
@@ -92,7 +85,7 @@ class ExpenseListActivity : AppCompatActivity() {
         arrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spinnerFilter.adapter = arrayAdapter
         spinnerFilter.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: android.view.View?, position: Int, id: Long) {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 selectedCategory = categories[position]
                 loadExpenses()
             }
@@ -110,35 +103,33 @@ class ExpenseListActivity : AppCompatActivity() {
         loadExpenses()
     }
 
-
     private fun loadExpenses() {
         expensesJob?.cancel()
 
         expensesJob = lifecycleScope.launch {
-            val flow: Flow<List<Expense>> = when {
-                startDateStr != null && endDateStr != null -> {
-                    loadCategoryTotals()
-                    dao.getExpensesByDateRange(currentUserId, startDateStr!!, endDateStr!!)
+            repository.getExpensesByUser(currentUserId).collect { allExpenses ->
+
+                var filteredExpenses = allExpenses
+
+                if (selectedCategory != "All") {
+                    filteredExpenses = filteredExpenses.filter { it.category == selectedCategory }
                 }
 
-                selectedCategory != "All" -> {
+                if (startDateStr != null && endDateStr != null) {
+                    filteredExpenses = filteredExpenses.filter {
+                        it.date >= startDateStr!! && it.date <= endDateStr!!
+                    }
+                    displayCategoryTotals(filteredExpenses)
+                } else {
                     tvCategoryTotals.text = ""
-                    dao.getExpensesByCategory(currentUserId, selectedCategory)
                 }
 
-                else -> {
-                    tvCategoryTotals.text = ""
-                    dao.getExpensesByUser(currentUserId)
-                }
-            }
-
-            flow.collect { expenses ->
-                adapter.updateExpenses(expenses)
-                updateTotalAmount(expenses)
+                adapter.updateExpenses(filteredExpenses)
+                updateTotalAmount(filteredExpenses)
 
                 Toast.makeText(
                     this@ExpenseListActivity,
-                    "Loaded ${expenses.size} expenses",
+                    "Loaded ${filteredExpenses.size} expenses",
                     Toast.LENGTH_SHORT
                 ).show()
             }
@@ -150,23 +141,18 @@ class ExpenseListActivity : AppCompatActivity() {
         tvTotalAmount.text = String.format("R %,.2f", total)
     }
 
-    private fun loadCategoryTotals() {
-        if (startDateStr == null || endDateStr == null) return
-        lifecycleScope.launch {
-            dao.getCategoryTotalsByDate(currentUserId, startDateStr!!, endDateStr!!).collect { totals ->
-                displayTotals(totals)
-            }
-        }
-    }
-
-    private fun displayTotals(totals: List<com.example.budjet.data.CategoryCount>) {
-        if (totals.isEmpty()) {
+    private fun displayCategoryTotals(expenses: List<Expense>) {
+        if (expenses.isEmpty()) {
             tvCategoryTotals.text = "No expenses found for these dates."
             return
         }
+
+        val categoryCounts = expenses.groupBy { it.category }
+            .mapValues { it.value.size }
+
         val sb = StringBuilder("--- Summary for Period ---\n")
-        for (item in totals) {
-            sb.append("• ${item.category}: ${item.count} items\n")
+        for ((category, count) in categoryCounts) {
+            sb.append("• $category: $count items\n")
         }
         tvCategoryTotals.text = sb.toString()
     }
@@ -202,13 +188,14 @@ class ExpenseListActivity : AppCompatActivity() {
     private fun deleteExpense(expense: Expense) {
         lifecycleScope.launch {
             try {
-                dao.deleteExpense(expense)
+                repository.deleteExpense(expense.expenseId)
                 Toast.makeText(this@ExpenseListActivity, "Expense deleted", Toast.LENGTH_SHORT).show()
             } catch (e: Exception) {
                 Toast.makeText(this@ExpenseListActivity, "Error deleting expense", Toast.LENGTH_SHORT).show()
             }
         }
     }
+
     fun filterByCategory(category: String) {
         selectedCategory = category
         loadExpenses()
@@ -219,7 +206,7 @@ class ExpenseListActivity : AppCompatActivity() {
         private val onLongPress: (Expense) -> Unit
     ) : RecyclerView.Adapter<ExpenseAdapter.ExpenseViewHolder>() {
 
-        inner class ExpenseViewHolder(itemView: android.view.View) : RecyclerView.ViewHolder(itemView) {
+        inner class ExpenseViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
             val iconCategory: TextView = itemView.findViewById(R.id.iconCategory)
             val ivExpensePhoto: ImageView = itemView.findViewById(R.id.ivExpensePhoto)
             val tvCategory: TextView = itemView.findViewById(R.id.tvCategory)

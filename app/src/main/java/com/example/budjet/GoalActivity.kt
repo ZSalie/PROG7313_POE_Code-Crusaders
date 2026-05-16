@@ -10,52 +10,65 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import com.example.budjet.data.AppDatabase
+import com.example.budjet.data.BudgetRepository
 import com.example.budjet.data.Goal
 import kotlinx.coroutines.launch
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.*
+
 class GoalActivity : AppCompatActivity() {
-    private lateinit var db: AppDatabase
+
+    private lateinit var repository: BudgetRepository
     private lateinit var etMinGoal: EditText
     private lateinit var etMaxGoal: EditText
     private lateinit var btnSaveGoal: Button
     private lateinit var tvGoalStatus: TextView
     private lateinit var progressGoal: ProgressBar
     private lateinit var tvCurrentSpending: TextView
-    private val userId = 1
+
+    private var currentUserId: String = ""
+
     private val currentYearMonth: String
         get() = SimpleDateFormat("yyyy-MM", Locale.getDefault()).format(Date())
-    private val monthPattern: String
-        get() = "$currentYearMonth%"
+
     private val monthDisplay: String
         get() = SimpleDateFormat("MMMM yyyy", Locale.getDefault()).format(Date())
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_goal)
-        db = AppDatabase.getInstance(this)
+
+        currentUserId = getSharedPreferences("app_prefs", MODE_PRIVATE).getString("currentUserId", "") ?: ""
+        repository = BudgetRepository()
+
         etMinGoal = findViewById(R.id.etMinGoal)
         etMaxGoal = findViewById(R.id.etMaxGoal)
         btnSaveGoal = findViewById(R.id.btnSaveGoal)
         tvGoalStatus = findViewById(R.id.tvGoalStatus)
         progressGoal = findViewById(R.id.progressGoal)
         tvCurrentSpending = findViewById(R.id.tvCurrentSpending)
+
         findViewById<ImageView>(R.id.navHome).setOnClickListener { finish() }
         findViewById<ImageView>(R.id.navWallet).setOnClickListener { }
         findViewById<ImageView>(R.id.navEdit).setOnClickListener {
             startActivity(Intent(this, AddExpenseActivity::class.java))
         }
         findViewById<ImageView>(R.id.navProfile).setOnClickListener { }
+
         loadData()
+
         btnSaveGoal.setOnClickListener { saveGoal() }
     }
+
     private fun loadData() {
         lifecycleScope.launch {
-            val goal = db.budJetDao().getGoalForMonth(userId, monthDisplay)
-            val totalSpent = db.budJetDao().getTotalSpendingForMonth(userId, monthPattern)
+            val goal = repository.getGoalForMonth(currentUserId, monthDisplay)
+            val totalSpent = repository.getTotalSpendingForMonth(currentUserId, currentYearMonth)
+
             val formatter = NumberFormat.getCurrencyInstance(Locale("en", "ZA"))
             tvCurrentSpending.text = formatter.format(totalSpent)
+
             if (goal != null) {
                 etMinGoal.setText(goal.minGoal.toString())
                 etMaxGoal.setText(goal.maxGoal.toString())
@@ -65,6 +78,7 @@ class GoalActivity : AppCompatActivity() {
             }
         }
     }
+
     private fun updateGoalStatus(
         minGoal: Double?,
         maxGoal: Double?,
@@ -131,6 +145,7 @@ class GoalActivity : AppCompatActivity() {
             }
         }
     }
+
     private fun saveGoal() {
         val minText = etMinGoal.text.toString().trim()
         val maxText = etMaxGoal.text.toString().trim()
@@ -159,17 +174,14 @@ class GoalActivity : AppCompatActivity() {
         }
 
         lifecycleScope.launch {
-            val existingGoal = db.budJetDao().getGoalForMonth(userId, monthDisplay)
-
             val goal = Goal(
-                goalId = existingGoal?.goalId ?: 0,
-                userId = userId,
+                userId = currentUserId,
                 month = monthDisplay,
                 minGoal = min,
                 maxGoal = max
             )
 
-            db.budJetDao().insertGoal(goal)
+            repository.insertGoal(goal)
 
             Toast.makeText(
                 this@GoalActivity,
@@ -177,7 +189,7 @@ class GoalActivity : AppCompatActivity() {
                 Toast.LENGTH_SHORT
             ).show()
 
-            val totalSpent = db.budJetDao().getTotalSpendingForMonth(userId, monthPattern)
+            val totalSpent = repository.getTotalSpendingForMonth(currentUserId, currentYearMonth)
 
             val formatter = NumberFormat.getCurrencyInstance(Locale("en", "ZA"))
             tvCurrentSpending.text = formatter.format(totalSpent)

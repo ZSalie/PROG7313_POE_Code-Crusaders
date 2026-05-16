@@ -1,5 +1,6 @@
 package com.example.budjet
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.widget.EditText
@@ -9,9 +10,9 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatButton
 import androidx.lifecycle.lifecycleScope
-import androidx.room.Room
-import com.example.budjet.data.AppDatabase
+import com.example.budjet.data.BudgetRepository
 import com.example.budjet.data.User
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
@@ -24,19 +25,15 @@ class MainActivity : AppCompatActivity() {
     private lateinit var etPassword: EditText
     private lateinit var btnSignUp: AppCompatButton
 
-    private lateinit var db: AppDatabase
+    private lateinit var auth: FirebaseAuth
+    private lateinit var repository: BudgetRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        db = Room.databaseBuilder(
-            applicationContext,
-            AppDatabase::class.java,
-            "budjet_db"
-        )
-            .fallbackToDestructiveMigration()
-            .build()
+        auth = FirebaseAuth.getInstance()
+        repository = BudgetRepository()
 
         btnBack = findViewById(R.id.btnBack)
         tvLoginLink = findViewById(R.id.tvLoginLink)
@@ -65,31 +62,46 @@ class MainActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            lifecycleScope.launch {
+            auth.createUserWithEmailAndPassword(email, password)
+                .addOnCompleteListener(this) { task ->
+                    if (task.isSuccessful) {
+                        val firebaseUser = auth.currentUser
+                        val uid = firebaseUser?.uid ?: ""
 
-                db.budJetDao().insertUser(
-                    User(
-                        username = username,
-                        email = email,
-                        password = password
-                    )
-                )
+                        val sharedPref = getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
+                        with(sharedPref.edit()) {
+                            putString("currentUserId", uid)
+                            apply()
+                        }
 
-                runOnUiThread {
+                        val newUser = User(
+                            userId = uid,
+                            username = username,
+                            email = email
+                        )
 
-                    Toast.makeText(
-                        this@MainActivity,
-                        "Account created!",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                        lifecycleScope.launch {
+                            repository.saveNewUser(newUser)
 
-                    startActivity(
-                        Intent(this@MainActivity, WalletActivity::class.java)
-                    )
+                            Toast.makeText(
+                                this@MainActivity,
+                                "Account created!",
+                                Toast.LENGTH_SHORT
+                            ).show()
 
-                    finish()
+                            startActivity(
+                                Intent(this@MainActivity, WalletActivity::class.java)
+                            )
+                            finish()
+                        }
+                    } else {
+                        Toast.makeText(
+                            this@MainActivity,
+                            "Sign up failed: ${task.exception?.message}",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
                 }
-            }
         }
     }
 }

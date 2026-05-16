@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "201761913742",
+    "project_id": "budjet-a39df",
+    "storage_bucket": "budjet-a39df.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:201761913742:android:96069f4e640613ce5802df",
+        "android_client_info": {
+          "package_name": "com.example.budjet"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDj6s5Hm1uRUGGM2yk_L2HltKaEbI4-MiE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

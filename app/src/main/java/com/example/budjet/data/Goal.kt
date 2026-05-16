@@ -1,23 +1,14 @@
 package com.example.budjet.data
 
-import androidx.room.Entity
-import androidx.room.Index
-import androidx.room.PrimaryKey
+import com.google.firebase.firestore.DocumentId
 
-@Entity(
-    tableName = "goals",
-    indices = [
-        Index(value = ["userId", "month"], unique = true)
-    ]
-)
 data class Goal(
+    @DocumentId
+    var goalId: String = "",
 
-    @PrimaryKey(autoGenerate = true)
-    val goalId: Int = 0,
+    var userId: String = "",
+    var month: String = "",
 
-    val userId: Int,
-    val month: String,
-
-    val minGoal: Double,
-    val maxGoal: Double
+    var minGoal: Double = 0.0,
+    var maxGoal: Double = 0.0
 )
