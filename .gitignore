@@ -1,10 +1,24 @@
-*.iml
-.gradle
-/local.properties
+# Gradle files and build caches
+.gradle/
+/build/
+/*/build/
+
+# Android Studio and IDE settings
 .idea/
+*.iml
+*.ipr
+*.iws
+/captures/
 .DS_Store
-/build
-/captures
-.externalNativeBuild
-.cxx
+
+# Local machine specific configurations
+/local.properties
 local.properties
+
+# Native build directories
+.externalNativeBuild/
+.cxx/
+
+# CRITICAL SECURITY EXCLUSIONS
+# Never commit cloud infrastructure API keys or credentials
+**/google-services.json
